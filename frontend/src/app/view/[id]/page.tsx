@@ -12,7 +12,7 @@ export default function page() {
             </div>
             <button className='action-button bg-blue-500'>Edit</button>
             <button className='action-button bg-red-500'>Delete</button>
-            <button className='action-button'>Back</button>
+            <button className='action-button'><a href="/">Back</a></button>
         </div>
     )
 }

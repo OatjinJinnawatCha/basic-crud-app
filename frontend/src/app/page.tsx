@@ -1,6 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import React from 'react'
+import ActionButton from '@/components/ActionButton';
 
 export default function page() {
   const router = useRouter();
@@ -25,8 +26,8 @@ export default function page() {
         <table className="w-[90%]">
           <thead className="bg-blue-500 text-white uppercase text-sm">
             <tr>
-              {columns.map((column) => (
-                <th className="p-3 border text-left">{column}</th>
+              {columns.map((column, index) => (
+                <th className="p-3 border text-left" key={index}>{column}</th>
               ))}
             </tr>
           </thead>
@@ -39,10 +40,10 @@ export default function page() {
                 <td className="p-2 border">{row.id}</td>
                 <td className="p-2 border">{row.name}</td>
                 <td className="p-2 border">{row.jobPosition}</td>
-                <td className='space-x-2 p-2'>
-                  <button className='action-button' onClick={() => handleView(row.id)}>View</button>
-                  <button className='action-button bg-green-500'>Edit</button>
-                  <button className='action-button bg-red-500' onClick={() => handleDelete(row.id)}>Delete</button>
+                <td className='space-x-2 p-2'>      
+                  <ActionButton onClick={() => handleView(row.id)} text='View' color='blue'/>
+                  <ActionButton onClick={() => handleView(row.id)} text='Edit' color='green'/>
+                  <ActionButton onClick={() => handleDelete(row.id)} text='Delete' color='red'/>
                 </td>
               </tr>
             ))}
