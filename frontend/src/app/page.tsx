@@ -1,55 +1,129 @@
 'use client'
 import { useRouter } from 'next/navigation';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ActionButton from '@/components/ActionButton';
+import axios from 'axios';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Box, Breadcrumbs, Link } from '@mui/material';
+import PageLoading from '@/components/PageLoading';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
+interface User {
+  id: number;
+  name: string;
+  jobPosition: string;
+  createdDate: string;
+  description: string;
+}
 export default function page() {
   const router = useRouter();
-  const data = [
-    { id: 1, name: "John Doe", jobPosition: "Admin" },
-    { id: 2, name: "Jane Doe", jobPosition: "Developer" },
-    { id: 3, name: "Alice Doe", jobPosition: "Designer" },
-  ]
-  const columns = ["ID", "Name", "Job Position", "Action"];
+  const backendAPI = process.env.NEXT_PUBLIC_API_URL;
 
-  const handleDelete = (id: number) => {
-    console.log("Delete user id : ", id);
-  }
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${backendAPI}/user/getAll`);
+        if (!response.status) throw new Error("Failed to fetch users");
+        setUsers(response.data.data || []);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setUsers([]);
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllUsers();
+  }, [backendAPI]);
+
+  const columns: GridColDef[] = [
+    {
+      field: "view",
+      headerName: "View".toUpperCase(),
+      width: 60,
+      renderCell: (params: { row: User }) => {
+        return (
+          <div className="flex justify-center items-center w-full h-full hover:cursor-pointer">
+            <VisibilityIcon 
+              onClick={() => handleView(params.row.id)} 
+              color='primary'
+              sx={{ fontSize: 30 }}
+            />
+          </div>
+        );
+      }
+    },    
+    {
+      field: "edit",
+      headerName: "Edit".toUpperCase(),
+      width: 60,
+      renderCell: (params: { row: User }) => {
+        return (
+          <div className="flex justify-center items-center w-full h-full hover:cursor-pointer">
+            <ModeEditIcon 
+              onClick={() => handleEdit(params.row.id)} 
+              color='primary'
+              sx={{ fontSize: 30 }}
+            />
+          </div>
+        )
+      }
+    },
+    { field: "id", headerName: "ID", width: 50 },
+    { field: "name", headerName: "Name", width: 100 },
+    { field: "jobPosition", headerName: "Job Position", width: 170 },
+    { field: "description", headerName: "Description", width: 300 }
+  ]
+
   const handleView = (id: number) => {
     router.push(`/view/${id}`);
   }
+  const handleEdit = (id: number) => {
+    router.push(`/edit/${id}`);
+  }
+  const breadcrumbs = [
+    <Link underline="hover" key="1" color="inherit" href="/">
+      EMS
+    </Link>,
+    <Link underline="hover" key="2" color="inherit" href="/" sx={{ color: 'text.primary' }}>
+      Dashboard
+    </Link>,
+  ];
 
   return (
-    <div className='page-layout'>
-      <h1 className='page-title'>Dashboard</h1>
-      <div className="flex justify-center">
-        <table className="w-[90%]">
-          <thead className="bg-blue-500 text-white uppercase text-sm">
-            <tr>
-              {columns.map((column, index) => (
-                <th className="p-3 border text-left" key={index}>{column}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, index) => (
-              <tr
-                key={row.id}
-                className={`border text-gray-700 ${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-blue-100 transition`}
-              >
-                <td className="p-2 border">{row.id}</td>
-                <td className="p-2 border">{row.name}</td>
-                <td className="p-2 border">{row.jobPosition}</td>
-                <td className='space-x-2 p-2'>      
-                  <ActionButton onClick={() => handleView(row.id)} text='View' color='blue'/>
-                  <ActionButton onClick={() => handleView(row.id)} text='Edit' color='green'/>
-                  <ActionButton onClick={() => handleDelete(row.id)} text='Delete' color='red'/>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div >
-    </div>
+    <>
+      {isLoading ? (
+        <PageLoading />
+      ) : (
+        <div className='page-layout'>
+          <Breadcrumbs
+            separator={<NavigateNextIcon fontSize="small" />}
+            aria-label="breadcrumb"
+          >
+            {breadcrumbs}
+          </Breadcrumbs>
+          <h1 className='page-title'>Dashboard</h1>
+          <div className="flex justify-center">
+            <Box sx={{ width: '100%' }}>
+              <DataGrid
+                columns={columns}
+                rows={users}
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: 10, page: 0 },
+                  },
+                }}
+                pageSizeOptions={[5, 10, 25]}
+              />
+            </Box>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

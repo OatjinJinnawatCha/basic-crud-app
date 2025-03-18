@@ -10,7 +10,7 @@ export default function ActionButton({onClick, color='blue', text}: ActionButton
         <>
             <button
                 onClick={onClick}
-                className={`bg-${color}-500 hover:bg-${color}-700 text-white font-medium py-2 px-4 rounded transition duration-300`}>
+                className={`bg-${color}-500 hover:bg-${color}-700 hover:cursor-pointer text-white font-medium py-2 px-4 rounded transition duration-300`}>
                     {text}
             </button>
         </>

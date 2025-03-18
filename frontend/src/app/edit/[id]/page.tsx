@@ -1,10 +1,10 @@
 'use client'
-import ActionButton from '@/components/ActionButton'
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import ActionButton from '@/components/ActionButton';
 import AlertBox from '@/components/AlertBox';
-import axios from 'axios';
 import { Breadcrumbs, Link } from '@mui/material';
+import axios from 'axios';
+import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 interface UserData {
@@ -14,6 +14,7 @@ interface UserData {
 }
 export default function page() {
     const router = useRouter();
+    const { id } = useParams();
     const backendAPI = process.env.NEXT_PUBLIC_API_URL;
 
     const [userData, setUserData] = useState<UserData>({ name: '', jobPosition: '', description: '' });
@@ -21,28 +22,56 @@ export default function page() {
     const [alertMessage, setAlertMessage] = useState('');
     const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`${backendAPI}/user/getUser?id=${id}`);
+                if (!response.status) throw new Error("Failed to fetch user");
+                setUserData(response.data.data || {});
+            } catch (error) {
+                console.error("Error fetching user:", error);
+                router.push('/error');
+            }
+        }
+        fetchUserData();
+    }, [])
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setUserData({ ...userData, [e.target.name]: e.target.value });
     };
     const handleCancel = () => {
         router.push('/');
     }
-    const handleCreate = async () => {
-        const response = await axios.post(`${backendAPI}/user/create`, userData)
-        if (response.status === 201) {
-            setAlertMessage("Created");
+    const handleUpdate = async () => {
+        const response = await axios.put(`${backendAPI}/user/update?id=${id}`, userData)
+        if (response.status === 200) {
+            setAlertMessage("Updated");
             setAlertType('success');
             handleAlert();
         } else {
-            setAlertMessage("Failed to create");
+            setAlertMessage("Failed to update");
+            setAlertType('error');
+            handleAlert();
+        }
+    }
+    const handleDelete = async () => {
+        const response = await axios.delete(`${backendAPI}/user/delete?id=${id}`)
+        if (response.status === 200) {
+            setAlertMessage("Deleted");
+            setAlertType('success');
+            handleAlert();
+        } else {
+            setAlertMessage("Failed to delete");
             setAlertType('error');
             handleAlert();
         }
     }
     const handleAlert = () => {
         setShowAlert(true);
-        setTimeout(() => setShowAlert(false), 1500);
-        router.push('/')
+        setTimeout(() => {
+            setShowAlert(false)
+            router.push('/')
+        }, 1500);
     }
     const handleCloseAlert = () => {
         setShowAlert(false);
@@ -57,19 +86,18 @@ export default function page() {
             Dashboard
         </Link>,
         <Link underline="hover" key="2" color="inherit" href="/add" sx={{ color: 'text.primary' }}>
-            Add
+            Edit
         </Link>,
     ];
-
     return (
         <>
             <div className='page-layout'>
-                <Breadcrumbs
-                    separator={<NavigateNextIcon fontSize="small" />}
-                    aria-label="breadcrumb"
-                >
-                    {breadcrumbs}
-                </Breadcrumbs>
+            <Breadcrumbs
+                separator={<NavigateNextIcon fontSize="small" />}
+                aria-label="breadcrumb"
+            >
+                {breadcrumbs}
+            </Breadcrumbs>
                 <h1 className='page-title'>Add Employee</h1>
 
                 {/* Form to Add User */}
@@ -111,13 +139,13 @@ export default function page() {
                     </div>
                     <div className='flex space-x-2 py-2 items-center justify-center'>
                         <ActionButton
-                            onClick={handleCreate}
+                            onClick={handleUpdate}
                             color={'blue'}
-                            text={'Create'} />
+                            text={'Edit'} />
                         <ActionButton
-                            onClick={handleCancel}
+                            onClick={handleDelete}
                             color={'red'}
-                            text={'Cancel'} />
+                            text={'Delete'} />
                     </div>
                 </form>
             </div>

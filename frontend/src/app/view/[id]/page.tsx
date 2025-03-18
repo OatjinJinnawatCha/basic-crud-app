@@ -1,8 +1,27 @@
+import { Breadcrumbs, Link } from '@mui/material';
 import React from 'react'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 export default function page() {
+    const breadcrumbs = [
+        <Link underline="hover" key="1" color="inherit" href="/">
+            EMS
+        </Link>,
+        <Link underline="hover" key="2" color="inherit" href="/">
+            Dashboard
+        </Link>,
+        <Link underline="hover" key="2" color="inherit" href="/add" sx={{ color: 'text.primary' }}>
+            View
+        </Link>,
+    ];
     return (
         <div className='page-layout'>
+            <Breadcrumbs
+                separator={<NavigateNextIcon fontSize="small" />}
+                aria-label="breadcrumb"
+            >
+                {breadcrumbs}
+            </Breadcrumbs>
             <h1 className='page-title'>View User</h1>
             {/* User Details */}
             <div>
@@ -10,9 +29,6 @@ export default function page() {
                 <p>Name: John Doe</p>
                 <p>Job Position: Admin</p>
             </div>
-            <button className='action-button bg-blue-500'>Edit</button>
-            <button className='action-button bg-red-500'>Delete</button>
-            <button className='action-button'><a href="/">Back</a></button>
         </div>
     )
 }
