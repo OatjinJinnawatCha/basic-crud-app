@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import PageLoading from '@/components/PageLoading';
 
 interface UserData {
     name: string;
@@ -21,16 +22,19 @@ export default function page() {
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
+            setIsLoading(true);
             try {
                 const response = await axios.get(`${backendAPI}/user/getUser?id=${id}`);
                 if (!response.status) throw new Error("Failed to fetch user");
                 setUserData(response.data.data || {});
+                setIsLoading(false);
             } catch (error) {
                 console.error("Error fetching user:", error);
-                router.push('/error');
+                setIsLoading(true);
             }
         }
         fetchUserData();
@@ -39,28 +43,31 @@ export default function page() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setUserData({ ...userData, [e.target.name]: e.target.value });
     };
-    const handleCancel = () => {
-        router.push('/');
-    }
     const handleUpdate = async () => {
+        setIsLoading(true);
         const response = await axios.put(`${backendAPI}/user/update?id=${id}`, userData)
         if (response.status === 200) {
+            setIsLoading(false);
             setAlertMessage("Updated");
             setAlertType('success');
             handleAlert();
         } else {
+            setIsLoading(false);
             setAlertMessage("Failed to update");
             setAlertType('error');
             handleAlert();
         }
     }
     const handleDelete = async () => {
+        setIsLoading(true);
         const response = await axios.delete(`${backendAPI}/user/delete?id=${id}`)
         if (response.status === 200) {
+            setIsLoading(false);
             setAlertMessage("Deleted");
             setAlertType('success');
             handleAlert();
         } else {
+            setIsLoading(false);
             setAlertMessage("Failed to delete");
             setAlertType('error');
             handleAlert();
@@ -91,70 +98,74 @@ export default function page() {
     ];
     return (
         <>
-            <div className='page-layout'>
-            <Breadcrumbs
-                separator={<NavigateNextIcon fontSize="small" />}
-                aria-label="breadcrumb"
-            >
-                {breadcrumbs}
-            </Breadcrumbs>
-                <h1 className='page-title'>Add Employee</h1>
+            {isLoading ? (
+                <PageLoading />
+            ) : (
+                <div className='page-layout'>
+                    {/* Breadcrumbs Section */}
+                    <div className="mb-4">
+                        <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+                            {breadcrumbs}
+                        </Breadcrumbs>
+                    </div>
+                    <h1 className='page-title'>Add Employee</h1>
 
-                {/* Form to Add User */}
-                <form onSubmit={(e) => e.preventDefault()} className='flex flex-col'>
-                    <div>
-                        <label htmlFor="name">Name:</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            // required
-                            value={userData.name}
-                            onChange={handleChange}
-                            className='border p-2 rounded-md w-full'
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="jobPosition">Job Position:</label>
-                        <input
-                            type="text"
-                            id="jobPosition"
-                            name="jobPosition"
-                            // required
-                            value={userData.jobPosition}
-                            onChange={handleChange}
-                            className='border p-2 rounded-md w-full'
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="description">Description:</label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            // required
-                            value={userData.description}
-                            onChange={handleChange}
-                            className='border p-2 rounded-md w-full'
-                        />
-                    </div>
-                    <div className='flex space-x-2 py-2 items-center justify-center'>
-                        <ActionButton
-                            onClick={handleUpdate}
-                            color={'blue'}
-                            text={'Edit'} />
-                        <ActionButton
-                            onClick={handleDelete}
-                            color={'red'}
-                            text={'Delete'} />
-                    </div>
-                </form>
-            </div>
+                    {/* Form to Add User */}
+                    <form onSubmit={(e) => e.preventDefault()} className='flex flex-col'>
+                        <div>
+                            <label htmlFor="name">Name:</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                required
+                                value={userData.name}
+                                onChange={handleChange}
+                                className='border p-2 rounded-md w-full'
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="jobPosition">Job Position:</label>
+                            <input
+                                type="text"
+                                id="jobPosition"
+                                name="jobPosition"
+                                required
+                                value={userData.jobPosition}
+                                onChange={handleChange}
+                                className='border p-2 rounded-md w-full'
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="description">Description:</label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                required
+                                value={userData.description}
+                                onChange={handleChange}
+                                className='border p-2 rounded-md w-full'
+                            />
+                        </div>
+                        <div className='flex space-x-2 py-2 items-center justify-center'>
+                            <ActionButton
+                                onClick={handleUpdate}
+                                color={'blue'}
+                                text={'Edit'} />
+                            <ActionButton
+                                onClick={handleDelete}
+                                color={'red'}
+                                text={'Delete'} />
+                        </div>
+                    </form>
+                </div>
+            )}
 
             {/* Alert Box */}
             {showAlert && (
                 <AlertBox
                     message={alertMessage}
-                    type={alertType}
+                    severity={alertType}
                     onClose={handleCloseAlert}
                     onShow={handleAlert}>
                 </AlertBox>

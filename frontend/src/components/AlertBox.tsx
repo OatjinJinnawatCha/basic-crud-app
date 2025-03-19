@@ -1,22 +1,33 @@
-import React from 'react'
+"use client";
+
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
 interface AlertBoxProps {
+    severity?: "success" | "error" | "warning" | "info";
+    title?: string;
     message: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-    onClose: () => void;
-    onShow: () => void;
+    onClose?: () => void;
+    onShow?: () => void;
 }
-export default function AlertBox({ message, type = 'info', onClose, onShow }: AlertBoxProps) {
-    const typeClasses = {
-        success: 'bg-green-500 text-white',
-        error: 'bg-red-500 text-white',
-        warning: 'bg-yellow-500 text-white',
-        info: 'bg-blue-500 text-white',
-    }
+const AlertBox = ({ severity = "info", title, message }: AlertBoxProps) => {
     return (
-        <div className={`fixed top-4 right-4 px-4 py-3 rounded shadow-md flex items-center ${typeClasses[type]}`}>
-            <span className="mr-3">{message}</span>
-            <button onClick={onClose} className="text-white font-bold ml-2 hover:opacity-75 hover:cursor-pointer">✖</button>
+        <div
+            style={{
+                position: "fixed",
+                top: "20px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 1000,
+                minWidth: "300px",
+            }}
+        >
+            <Alert severity={severity}>
+                {title && <AlertTitle>{title}</AlertTitle>}
+                {message}
+            </Alert>
         </div>
-    )
-}
+    );
+};
+
+export default AlertBox;

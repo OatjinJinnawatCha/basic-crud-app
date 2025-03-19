@@ -33,7 +33,7 @@ export default function page() {
             setAlertMessage("Created");
             setAlertType('success');
             handleAlert();
-        } else {
+        } else{
             setAlertMessage("Failed to create");
             setAlertType('error');
             handleAlert();
@@ -41,8 +41,10 @@ export default function page() {
     }
     const handleAlert = () => {
         setShowAlert(true);
-        setTimeout(() => setShowAlert(false), 1500);
-        router.push('/')
+        setTimeout(() => {
+            setShowAlert(false),
+            router.push('/')
+        }, 1500);
     }
     const handleCloseAlert = () => {
         setShowAlert(false);
@@ -80,7 +82,7 @@ export default function page() {
                             type="text"
                             id="name"
                             name="name"
-                            // required
+                            required
                             value={userData.name}
                             onChange={handleChange}
                             className='border p-2 rounded-md w-full'
@@ -92,7 +94,7 @@ export default function page() {
                             type="text"
                             id="jobPosition"
                             name="jobPosition"
-                            // required
+                            required
                             value={userData.jobPosition}
                             onChange={handleChange}
                             className='border p-2 rounded-md w-full'
@@ -103,7 +105,7 @@ export default function page() {
                         <textarea
                             id="description"
                             name="description"
-                            // required
+                            required
                             value={userData.description}
                             onChange={handleChange}
                             className='border p-2 rounded-md w-full'
@@ -126,7 +128,7 @@ export default function page() {
             {showAlert && (
                 <AlertBox
                     message={alertMessage}
-                    type={alertType}
+                    severity={alertType}
                     onClose={handleCloseAlert}
                     onShow={handleAlert}>
                 </AlertBox>

@@ -1,7 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
-import ActionButton from '@/components/ActionButton';
 import axios from 'axios';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Box, Breadcrumbs, Link } from '@mui/material';
@@ -49,15 +48,15 @@ export default function page() {
       renderCell: (params: { row: User }) => {
         return (
           <div className="flex justify-center items-center w-full h-full hover:cursor-pointer">
-            <VisibilityIcon 
-              onClick={() => handleView(params.row.id)} 
+            <VisibilityIcon
+              onClick={() => handleView(params.row.id)}
               color='primary'
               sx={{ fontSize: 30 }}
             />
           </div>
         );
       }
-    },    
+    },
     {
       field: "edit",
       headerName: "Edit".toUpperCase(),
@@ -65,8 +64,8 @@ export default function page() {
       renderCell: (params: { row: User }) => {
         return (
           <div className="flex justify-center items-center w-full h-full hover:cursor-pointer">
-            <ModeEditIcon 
-              onClick={() => handleEdit(params.row.id)} 
+            <ModeEditIcon
+              onClick={() => handleEdit(params.row.id)}
               color='primary'
               sx={{ fontSize: 30 }}
             />
@@ -75,7 +74,7 @@ export default function page() {
       }
     },
     { field: "id", headerName: "ID", width: 50 },
-    { field: "name", headerName: "Name", width: 100 },
+    { field: "name", headerName: "Name", width: 200 },
     { field: "jobPosition", headerName: "Job Position", width: 170 },
     { field: "description", headerName: "Description", width: 300 }
   ]
@@ -101,12 +100,12 @@ export default function page() {
         <PageLoading />
       ) : (
         <div className='page-layout'>
-          <Breadcrumbs
-            separator={<NavigateNextIcon fontSize="small" />}
-            aria-label="breadcrumb"
-          >
-            {breadcrumbs}
-          </Breadcrumbs>
+          {/* Breadcrumbs Section */}
+          <div className="mb-4">
+            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+              {breadcrumbs}
+            </Breadcrumbs>
+          </div>
           <h1 className='page-title'>Dashboard</h1>
           <div className="flex justify-center">
             <Box sx={{ width: '100%' }}>
@@ -119,6 +118,7 @@ export default function page() {
                   },
                 }}
                 pageSizeOptions={[5, 10, 25]}
+                disableRowSelectionOnClick
               />
             </Box>
           </div>
